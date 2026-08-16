@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>LinkedIn Banner — Harness Architecture: Demo vs Production</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: #0a0a0a;
+}
+
+.banner {
+  width: 1584px;
+  height: 396px;
+  background: linear-gradient(135deg, #0d1117 0%, #10151c 40%, #0d1117 100%);
+  position: relative;
+  overflow: hidden;
+  font-family: 'Inter', 'Segoe UI', -apple-system, sans-serif;
+}
+
+/* Circuit-board grid */
+.banner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(88,166,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(88,166,255,0.04) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(ellipse 80% 80% at 30% 50%, black 0%, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 80% at 30% 50%, black 0%, transparent 70%);
+}
+
+/* Glow accent behind harness diagram */
+.glow-orb {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(88,166,255,0.06) 0%, transparent 70%);
+  top: 50%;
+  left: 22%;
+  transform: translate(-50%, -50%);
+  animation: pulse-glow 4s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+}
+
+/* ─── LEFT: The Harness Flow ─── */
+.harness-side {
+  position: absolute;
+  left: 50px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 520px;
+}
+
+.harness-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #58a6ff;
+  margin-bottom: 14px;
+  opacity: 0;
+  animation: fadeIn 0.5s ease forwards;
+  animation-delay: 0.3s;
+}
+
+.flow-container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.flow-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  opacity: 0;
+  animation: nodeAppear 0.4s ease forwards;
+}
+
+.flow-node:nth-child(1) { animation-delay: 0.6s; }
+.flow-node:nth-child(2) { animation-delay: 0.9s; }
+.flow-node:nth-child(3) { animation-delay: 1.2s; }
+.flow-node:nth-child(4) { animation-delay: 1.5s; }
+.flow-node:nth-child(5) { animation-delay: 1.8s; }
+.flow-node:nth-child(6) { animation-delay: 2.1s; }
+.flow-node:nth-child(7) { animation-delay: 2.4s; }
+.flow-node:nth-child(8) { animation-delay: 2.7s; }
+.flow-node:nth-child(9) { animation-delay: 3.0s; }
+.flow-node:nth-child(10) { animation-delay: 3.3s; }
+.flow-node:nth-child(11) { animation-delay: 3.6s; }
+
+.node-box {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  white-space: nowrap;
+  border: 1px solid;
+}
+
+.node-pass {
+  background: rgba(35,134,54,0.15);
+  border-color: rgba(86,211,100,0.4);
+  color: #56d364;
+}
+
+.node-label {
+  font-size: 9px;
+  color: #6e7681;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.flow-arrow {
+  color: #30363d;
+  font-size: 16px;
+  opacity: 0;
+  animation: fadeIn 0.3s ease forwards;
+}
+
+.flow-arrow:nth-of-type(1) { animation-delay: 0.8s; }
+.flow-arrow:nth-of-type(2) { animation-delay: 1.1s; }
+.flow-arrow:nth-of-type(3) { animation-delay: 1.4s; }
+.flow-arrow:nth-of-type(4) { animation-delay: 1.7s; }
+.flow-arrow:nth-of-type(5) { animation-delay: 2.0s; }
+
+/* Check row */
+.check-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-family: 'JetBrains Mono', monospace;
+  color: #56d364;
+  opacity: 0;
+  animation: fadeIn 0.5s ease forwards;
+  animation-delay: 3.5s;
+  position: relative;
+}
+
+.check-row::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 0;
+  height: 2px;
+  background: #f85149;
+  animation: strikeGrow 0.5s ease forwards;
+  animation-delay: 5.5s;
+}
+
+/* Warning pills that appear below */
+.debt-pills {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+  opacity: 0;
+  animation: fadeSlideUp 0.6s ease forwards;
+  animation-delay: 5.8s;
+}
+
+.pill {
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.pill-red { background: rgba(248,81,73,0.12); color: #f85149; border: 1px solid rgba(248,81,73,0.25); }
+.pill-yellow { background: rgba(227,179,65,0.12); color: #e3b341; border: 1px solid rgba(227,179,65,0.25); }
+.pill-dim { background: rgba(139,148,158,0.1); color: #8b949e; border: 1px solid rgba(139,148,158,0.2); }
+
+/* ─── RIGHT: The Message ─── */
+.message-side {
+  position: absolute;
+  right: 55px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 560px;
+}
+
+.signal-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: rgba(88,166,255,0.1);
+  color: #58a6ff;
+  border: 1px solid rgba(88,166,255,0.25);
+  margin-bottom: 16px;
+  opacity: 0;
+  animation: fadeIn 0.4s ease forwards;
+  animation-delay: 4.0s;
+}
+
+.main-text {
+  font-size: 24px;
+  color: #e6edf3;
+  line-height: 1.55;
+  font-weight: 700;
+  opacity: 0;
+  animation: fadeSlideIn 0.8s ease forwards;
+  animation-delay: 4.3s;
+}
+
+.main-text .green { color: #56d364; }
+.main-text .red { color: #f85149; }
+.main-text .yellow { color: #e3b341; }
+
+.sub-text {
+  margin-top: 16px;
+  font-size: 13.5px;
+  color: #8b949e;
+  line-height: 1.6;
+  opacity: 0;
+  animation: fadeSlideIn 0.6s ease forwards;
+  animation-delay: 5.0s;
+}
+
+.sub-text strong {
+  color: #c9d1d9;
+}
+
+/* ─── BOTTOM: 3S labels ─── */
+.bottom-strip {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 36px;
+  background: rgba(22,27,34,0.95);
+  border-top: 1px solid #21262d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  opacity: 0;
+  animation: fadeIn 0.5s ease forwards;
+  animation-delay: 6.2s;
+}
+
+.s-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.s-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.s-dot-blue { background: #58a6ff; box-shadow: 0 0 6px rgba(88,166,255,0.4); }
+.s-dot-yellow { background: #e3b341; box-shadow: 0 0 6px rgba(227,179,65,0.4); }
+.s-dot-green { background: #56d364; box-shadow: 0 0 6px rgba(86,211,100,0.4); }
+
+.s-label { color: #8b949e; }
+.s-value { color: #c9d1d9; }
+
+/* Center vertical accent line */
+.v-accent {
+  position: absolute;
+  left: 600px;
+  top: 8%;
+  height: 84%;
+  width: 1px;
+  background: linear-gradient(to bottom, transparent, rgba(88,166,255,0.15) 20%, rgba(88,166,255,0.15) 80%, transparent);
+}
+
+/* ─── ANIMATIONS ─── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes nodeAppear {
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes strikeGrow {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+/* Loop reset */
+.banner {
+  animation: loopReset 12s infinite;
+}
+
+@keyframes loopReset {
+  0%, 92% { opacity: 1; }
+  96% { opacity: 0; }
+  100% { opacity: 1; }
+}
+</style>
+</head>
+<body>
+
+<div class="banner">
+  <div class="glow-orb"></div>
+  <div class="v-accent"></div>
+
+  <!-- LEFT: Harness flow diagram -->
+  <div class="harness-side">
+    <div class="harness-title">Agentic Harness Flow</div>
+
+    <div class="flow-container">
+      <div class="flow-node">
+        <div class="node-box node-pass">Plan</div>
+        <div class="node-label">sequence</div>
+      </div>
+      <span class="flow-arrow">&rarr;</span>
+      <div class="flow-node">
+        <div class="node-box node-pass">Context</div>
+        <div class="node-label">retrieve</div>
+      </div>
+      <span class="flow-arrow">&rarr;</span>
+      <div class="flow-node">
+        <div class="node-box node-pass">Execute</div>
+        <div class="node-label">tools</div>
+      </div>
+      <span class="flow-arrow">&rarr;</span>
+      <div class="flow-node">
+        <div class="node-box node-pass">Evaluate</div>
+        <div class="node-label">verify</div>
+      </div>
+      <span class="flow-arrow">&rarr;</span>
+      <div class="flow-node">
+        <div class="node-box node-pass">Iterate</div>
+        <div class="node-label">loop</div>
+      </div>
+    </div>
+
+    <div class="check-row">
+      &#10003;&nbsp; Demo passes. All steps green. Ship it?
+    </div>
+
+    <div class="debt-pills">
+      <span class="pill pill-red">NO LEARNING LOOP</span>
+      <span class="pill pill-red">STATELESS</span>
+      <span class="pill pill-yellow">CONTEXT POISONING</span>
+      <span class="pill pill-yellow">NO EVAL FEEDBACK</span>
+      <span class="pill pill-dim">LONG-HORIZON FAIL</span>
+    </div>
+  </div>
+
+  <!-- RIGHT: The insight -->
+  <div class="message-side">
+    <div class="signal-badge">Signal &rarr; Secret &rarr; System</div>
+    <div class="main-text">
+      Your harness <span class="green">passes the demo</span>.<br>
+      That's the part that becomes<br>
+      <span class="red">production debt</span>.
+    </div>
+    <div class="sub-text">
+      Models don't fail in production. <strong>Harnesses do.</strong><br>
+      Planning, context, eval &mdash; the 3 dimensions that demo well<br>
+      are the 3 that collapse at scale without state and learning loops.
+    </div>
+  </div>
+
+  <!-- BOTTOM: 3S Framework strip -->
+  <div class="bottom-strip">
+    <div class="s-item">
+      <div class="s-dot s-dot-blue"></div>
+      <span class="s-label">Signal:</span>
+      <span class="s-value">Model &rarr; Harness shift</span>
+    </div>
+    <div class="s-item">
+      <div class="s-dot s-dot-yellow"></div>
+      <span class="s-label">Secret:</span>
+      <span class="s-value">Learning loops are broken</span>
+    </div>
+    <div class="s-item">
+      <div class="s-dot s-dot-green"></div>
+      <span class="s-label">System:</span>
+      <span class="s-value">State + Eval + Context mgmt</span>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
