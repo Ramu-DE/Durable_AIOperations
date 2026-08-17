@@ -88,8 +88,8 @@ def rel_arrow(ax, p0, p1, color, label, rad, loffset=(0,0)):
     dx,dy = p1[0]-p0[0], p1[1]-p0[1]
     d = math.hypot(dx,dy); ox,oy = dx/d*0.10, dy/d*0.10
     ax.annotate('', xy=(p1[0]-ox,p1[1]-oy), xytext=(p0[0]+ox,p0[1]+oy),
-                arrowprops=dict(arrowstyle='-|>', color=color, lw=2.6,
-                                mutation_scale=13,
+                arrowprops=dict(arrowstyle='-|>', color=color, lw=3.5,
+                                mutation_scale=22,
                                 connectionstyle=f'arc3,rad={rad}'), zorder=16)
     px, py = arc_peak(p0, p1, rad)
     dist = math.hypot(px,py)
@@ -97,10 +97,10 @@ def rel_arrow(ax, p0, p1, color, label, rad, loffset=(0,0)):
     lx = (px + (px/dist)*push if dist>0.01 else px) + loffset[0]
     ly = (py + (py/dist)*push if dist>0.01 else py) + loffset[1]
     ax.text(lx, ly, label, ha='center', va='center',
-            fontsize=8.5, color=color, zorder=17,
-            fontweight='semibold', linespacing=1.2,
-            bbox=dict(boxstyle='round,pad=0.22', facecolor='white',
-                      edgecolor=color, alpha=0.97, lw=1.1))
+            fontsize=9.5, color=color, zorder=17,
+            fontweight='bold', linespacing=1.2,
+            bbox=dict(boxstyle='round,pad=0.30', facecolor='white',
+                      edgecolor=color, alpha=0.97, lw=1.8))
 
 def stick(ax,x,y,s=0.065,flip=False,zorder=12):
     d=-1 if flip else 1
@@ -129,6 +129,16 @@ _sp_edges=[(i,j) for i in range(28) for j in range(i+1,28)
            if math.hypot(_sp_pts[i][0]-_sp_pts[j][0],
                          _sp_pts[i][1]-_sp_pts[j][1])<R_SP*0.85]
 
+# per-node color palette (base_fill, border)
+NODE_PALETTE = {
+    'Drug':           ('#DBEAFE', '#1D4ED8'),
+    'Disease':        ('#FEE2E2', '#B91C1C'),
+    'Clinical_Trial': ('#D1FAE5', '#15803D'),
+    'Patient':        ('#FEF3C7', '#B45309'),
+    'Gene':           ('#EDE9FE', '#6D28D9'),
+    'Biomarker':      ('#FCE7F3', '#BE185D'),
+}
+
 # mid-junction points
 np.random.seed(42)
 _mid_pts=[]
@@ -140,25 +150,25 @@ for i in range(n_bio):
 
 # ── draw ───────────────────────────────────────────────────────────────────────
 def draw_frame(ax, active_rels=None, headline=None, glow=None):
-    ax.set_facecolor('white')
+    ax.set_facecolor('#E4EBF8')
     ax.set_xlim(-1.55,1.55); ax.set_ylim(-1.58,1.62)
     ax.set_aspect('equal'); ax.axis('off')
     glow=glow or set()
 
     ax.text(0,1.53,'GRAPH ENGINEERING',ha='center',va='center',
-            fontsize=32,fontweight='bold',color='black',fontfamily='DejaVu Sans')
+            fontsize=34,fontweight='bold',color='#0F172A',fontfamily='DejaVu Sans')
 
     # sphere
-    scircle(ax,CX,CY,R_SP,lw=1.6,fc='#F0F0F0',zorder=6)
+    scircle(ax,CX,CY,R_SP,lw=2.0,fc='#BFDBFE',zorder=6)
     for i,j in _sp_edges:
         ax.plot([_sp_pts[i][0],_sp_pts[j][0]],
                 [_sp_pts[i][1],_sp_pts[j][1]],'k-',lw=0.25,alpha=0.5,zorder=5)
     for pt in _sp_pts:
         ax.plot(pt[0],pt[1],'ko',markersize=1.5,zorder=6,alpha=0.8)
     ax.annotate('graph of\nweights',xy=(CX,CY-R_SP-0.005),
-                xytext=(CX+0.02,CY-0.44),ha='center',fontsize=8.5,
-                color='black',style='italic',
-                arrowprops=dict(arrowstyle='->',color='black',lw=0.9),zorder=10)
+                xytext=(CX+0.02,CY-0.44),ha='center',fontsize=9,
+                color='#1E3A8A',style='italic',fontweight='bold',
+                arrowprops=dict(arrowstyle='->',color='#3B82F6',lw=1.2),zorder=10)
 
     # doing cycle
     for i in range(len(do_list)):
@@ -166,22 +176,22 @@ def draw_frame(ax, active_rels=None, headline=None, glow=None):
         dx,dy=p1[0]-p0[0],p1[1]-p0[1]; d=math.hypot(dx,dy)
         ox,oy=dx/d*0.055,dy/d*0.055
         ax.annotate('',xy=(p1[0]-ox,p1[1]-oy),xytext=(p0[0]+ox,p0[1]+oy),
-                    arrowprops=dict(arrowstyle='-|>',color='black',lw=1.1,
+                    arrowprops=dict(arrowstyle='-|>',color='#3B82F6',lw=1.6,
                                    connectionstyle='arc3,rad=0.1'),zorder=7)
     for lbl,pos in do_list:
-        e=mpatches.Ellipse(pos,0.155,0.075,color='white',ec='black',lw=1.3,zorder=8)
+        e=mpatches.Ellipse(pos,0.165,0.082,color='#EFF6FF',ec='#3B82F6',lw=1.8,zorder=8)
         ax.add_patch(e)
         ax.text(pos[0],pos[1],lbl,ha='center',va='center',fontsize=8.5,
-                color='black',zorder=9)
+                color='#1D4ED8',fontweight='bold',zorder=9)
     chk=do_list[1][1]
     ax.annotate('graph of\ndoing',xy=(chk[0]+0.04,chk[1]),xytext=(0.74,0.10),
-                fontsize=8.5,color='black',style='italic',
-                arrowprops=dict(arrowstyle='->',color='black',lw=0.9),zorder=10)
+                fontsize=9,color='#1D4ED8',style='italic',fontweight='bold',
+                arrowprops=dict(arrowstyle='->',color='#3B82F6',lw=1.2),zorder=10)
 
     # outer ring
     for i in range(n_bio):
         _,p0=bio_list[i]; _,p1=bio_list[(i+1)%n_bio]
-        sketchy(ax,p0[0],p0[1],p1[0],p1[1],lw=1.4,zorder=5)
+        sketchy(ax,p0[0],p0[1],p1[0],p1[1],lw=1.8,color='#334155',zorder=5)
     for i,(mx,my) in enumerate(_mid_pts):
         _,p0=bio_list[i]; _,p1=bio_list[(i+1)%n_bio]
         sketchy(ax,p0[0],p0[1],mx,my,lw=0.9,zorder=4)
@@ -197,29 +207,30 @@ def draw_frame(ax, active_rels=None, headline=None, glow=None):
         ty=pos[1]-(pos[1]/nm)*(R_K-R_DO-0.05)
         sketchy(ax,pos[0],pos[1],tx,ty,lw=0.5,alpha=0.25,zorder=3)
 
-    # node boxes — colored border when active
+    # node boxes — colored always, brighter border when active
     for lbl,pos in bio_list:
         key=lbl.replace('\n','_')
         is_glow=key in glow
         has_nl='\n' in lbl
-        bw=0.175 if not has_nl else 0.195; bh=0.052 if not has_nl else 0.084
-        node_color='black'; fc='white'; lw=1.5
+        bw=0.195 if not has_nl else 0.220; bh=0.064 if not has_nl else 0.098
+        base_fc, base_ec = NODE_PALETTE.get(key, ('#F8FAFC','#334155'))
+        node_color=base_ec; fc=base_fc; lw=2.0
         if is_glow and active_rels:
             for r in active_rels:
                 if key in (r[0],r[1]):
-                    node_color=r[3]; fc='#FFFDE7'; lw=2.5; break
+                    node_color=r[3]; fc='#FEFCE8'; lw=3.5; break
         box=FancyBboxPatch((pos[0]-bw/2,pos[1]-bh/2),bw,bh,
-                           boxstyle='square,pad=0.006',
+                           boxstyle='round,pad=0.012',
                            facecolor=fc,edgecolor=node_color,lw=lw,zorder=9)
         ax.add_patch(box)
         ax.text(pos[0],pos[1],lbl,ha='center',va='center',
-                fontsize=9.5,fontweight='bold',color='black',zorder=10,
+                fontsize=11,fontweight='bold',color='#0F172A',zorder=10,
                 linespacing=1.15)
 
     dis_p=bio_list[1][1]
     ax.annotate('graph of\nknowing',xy=(dis_p[0]+0.06,dis_p[1]+0.05),
-                xytext=(1.20,0.76),fontsize=8.5,color='black',style='italic',
-                arrowprops=dict(arrowstyle='->',color='black',lw=0.9),zorder=10)
+                xytext=(1.20,0.76),fontsize=9,color='#1E40AF',style='italic',fontweight='bold',
+                arrowprops=dict(arrowstyle='->',color='#3B82F6',lw=1.2),zorder=10)
 
     # stick figures
     gn=bio_list[4][1]
@@ -239,26 +250,26 @@ def draw_frame(ax, active_rels=None, headline=None, glow=None):
 
     # headline
     if headline:
-        ax.text(0,1.39,headline,ha='center',va='center',fontsize=10,
-                color='#1A252F',style='italic',linespacing=1.3,
-                bbox=dict(boxstyle='round,pad=0.4',facecolor='#EBF5FB',
-                          edgecolor='#2980B9',lw=1.2,alpha=0.95),zorder=20)
+        ax.text(0,1.39,headline,ha='center',va='center',fontsize=10.5,
+                color='#1E3A8A',style='italic',linespacing=1.3,fontweight='bold',
+                bbox=dict(boxstyle='round,pad=0.5',facecolor='#DBEAFE',
+                          edgecolor='#1D4ED8',lw=2.0,alpha=0.97),zorder=20)
 
     # tagline
     ax.text(0,-1.42,'Graph of weights.    Graph of doing.    Graph of knowing.',
-            ha='center',va='center',fontsize=10.5,color='black',
-            fontfamily='DejaVu Sans',style='italic')
-    sketchy(ax,-0.80,-1.49,0.80,-1.49,lw=1.8,zorder=8)
+            ha='center',va='center',fontsize=11,color='#1E3A8A',
+            fontfamily='DejaVu Sans',style='italic',fontweight='semibold')
+    sketchy(ax,-0.90,-1.49,0.90,-1.49,lw=2.5,color='#1D4ED8',zorder=8)
 
 
 def to_pil(fig):
     buf=_io.BytesIO()
-    fig.savefig(buf,format='png',dpi=115,bbox_inches='tight',facecolor='white')
+    fig.savefig(buf,format='png',dpi=115,bbox_inches='tight',facecolor=fig.get_facecolor())
     buf.seek(0); img=Image.open(buf).copy(); buf.close(); return img
 
 def frame(active_rels=None,headline=None,glow=None):
     fig,ax=plt.subplots(figsize=(13,13))
-    fig.patch.set_facecolor('white')
+    fig.patch.set_facecolor('#E4EBF8')
     draw_frame(ax,active_rels,headline,glow)
     img=to_pil(fig); plt.close(fig); return img
 
@@ -268,7 +279,7 @@ keyframes,durations=[],[]
 def kf(active_rels=None,headline=None,glow=None,hold_ms=2000):
     keyframes.append(frame(active_rels,headline,glow)); durations.append(hold_ms)
 
-kf(headline='Biomedical Knowledge Graph  ·  31 node types  ·  37 relationship types',
+kf(headline='Biomedical Knowledge Graph  --  31 node types  --  37 relationship types',
    hold_ms=3000)
 
 cumulative=[]
