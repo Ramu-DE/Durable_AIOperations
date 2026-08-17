@@ -51,21 +51,25 @@ def arc_peak(p0, p1, rad):
             (p0[1]+p1[1])/2 + 0.5*rad*( dx))
 
 # Verified rad values — all produce arc_peak_dist > R_K:
-#   Drug→Disease      r=+0.55 → dist=0.80 ✓
-#   Biomarker→Drug    r=+0.55 → dist=0.80 ✓
-#   Gene→Disease      r=+1.25 → dist=0.88 ✓  (long diagonal needs large r)
-#   Patient→ClinTrial r=-0.55 → dist=0.80 ✓
-#   ClinTrial→Drug    r=-0.90 → dist=0.90 ✓
-#   ClinTrial→Disease r=-0.55 → dist=0.80 ✓
-#   Gene→Biomarker    r=+0.55 → dist=0.80 ✓
+#   Drug->Disease        r=+0.55 -> dist=0.80
+#   Biomarker->Drug      r=+0.55 -> dist=0.80
+#   Gene->Disease        r=+1.25 -> dist=0.88  (long diagonal)
+#   Patient->ClinTrial   r=-0.55 -> dist=0.80
+#   ClinTrial->Drug      r=-0.90 -> dist=0.90
+#   ClinTrial->Disease   r=-0.55 -> dist=0.80
+#   Gene->Biomarker      r=+0.55 -> dist=0.80
+#   Biomarker->Disease   r=+0.85 -> dist=0.865 (arcs over top)
+#   Disease->ClinTrial   r=+0.55 -> dist=0.799 (arcs right side)
 ALL_RELS = [
     ('Drug',          'Disease',        'treats',            '#C0392B', +0.55),
-    ('Biomarker',     'Drug',           'predicts\nresponse','#8E44AD', +0.55),
+    ('Biomarker',     'Drug',           'predicts\nresponse','#8E44AD', +0.55, (-0.12, -0.14)),
     ('Gene',          'Disease',        'associated\nwith',  '#2980B9', +1.25),
     ('Patient',       'Clinical_Trial', 'enrolled\nin',      '#27AE60', -0.55),
     ('Clinical_Trial','Drug',           'investigates',      '#E67E22', -0.90),
-    ('Clinical_Trial','Disease',        'studies',           '#16A085', -0.55),
-    ('Gene',          'Biomarker',      'expressed\nas',     '#7F8C8D', +0.55),
+    ('Clinical_Trial','Disease',        'studies',           '#16A085', -0.55, ( 0.0, +0.13)),
+    ('Gene',          'Biomarker',      'serves\nas',        '#7F8C8D', +0.55),
+    ('Biomarker',     'Disease',        'indicates',         '#D35400', +0.85),
+    ('Disease',       'Clinical_Trial', 'triggers',          '#6C3483', +0.55, ( 0.0, -0.13)),
 ]
 
 # ── helpers ────────────────────────────────────────────────────────────────────
@@ -80,19 +84,18 @@ def scircle(ax, cx,cy,r, lw=1.4, color='black', fc='white', zorder=5, alpha=1.0)
     ax.fill(cx+r*np.cos(t),cy+r*np.sin(t),color=fc,zorder=zorder-1,alpha=alpha)
     ax.plot(cx+r*np.cos(t),cy+r*np.sin(t),color=color,lw=lw,zorder=zorder,alpha=alpha)
 
-def rel_arrow(ax, p0, p1, color, label, rad):
+def rel_arrow(ax, p0, p1, color, label, rad, loffset=(0,0)):
     dx,dy = p1[0]-p0[0], p1[1]-p0[1]
     d = math.hypot(dx,dy); ox,oy = dx/d*0.10, dy/d*0.10
     ax.annotate('', xy=(p1[0]-ox,p1[1]-oy), xytext=(p0[0]+ox,p0[1]+oy),
                 arrowprops=dict(arrowstyle='-|>', color=color, lw=2.6,
                                 mutation_scale=13,
                                 connectionstyle=f'arc3,rad={rad}'), zorder=16)
-    # label at arc peak pushed slightly further from origin
     px, py = arc_peak(p0, p1, rad)
     dist = math.hypot(px,py)
     push = 0.10
-    lx = px + (px/dist)*push if dist>0.01 else px
-    ly = py + (py/dist)*push if dist>0.01 else py
+    lx = (px + (px/dist)*push if dist>0.01 else px) + loffset[0]
+    ly = (py + (py/dist)*push if dist>0.01 else py) + loffset[1]
     ax.text(lx, ly, label, ha='center', va='center',
             fontsize=8.5, color=color, zorder=17,
             fontweight='semibold', linespacing=1.2,
@@ -229,8 +232,10 @@ def draw_frame(ax, active_rels=None, headline=None, glow=None):
 
     # relationship arrows drawn last (on top of everything)
     if active_rels:
-        for src,tgt,label,color,rad in active_rels:
-            rel_arrow(ax,bio_pos[src],bio_pos[tgt],color,label,rad)
+        for item in active_rels:
+            src,tgt,label,color,rad = item[0],item[1],item[2],item[3],item[4]
+            loffset = item[5] if len(item)>5 else (0,0)
+            rel_arrow(ax,bio_pos[src],bio_pos[tgt],color,label,rad,loffset)
 
     # headline
     if headline:
@@ -268,27 +273,29 @@ kf(headline='Biomedical Knowledge Graph  ·  31 node types  ·  37 relationship 
 
 cumulative=[]
 STEPS=[
-    (ALL_RELS[0],'Drug  —[treats]→  Disease',                        {'Drug','Disease'}),
-    (ALL_RELS[1],'Biomarker  —[predicts response]→  Drug',           {'Drug','Disease','Biomarker'}),
-    (ALL_RELS[2],'Gene  —[associated with]→  Disease',               {'Drug','Disease','Biomarker','Gene'}),
-    (ALL_RELS[3],'Patient  —[enrolled in]→  Clinical Trial',         {'Drug','Disease','Biomarker','Gene','Patient','Clinical_Trial'}),
-    (ALL_RELS[4],'Clinical Trial  —[investigates]→  Drug',           {'Drug','Disease','Biomarker','Gene','Patient','Clinical_Trial'}),
-    (ALL_RELS[5],'Clinical Trial  —[studies]→  Disease',             {'Drug','Disease','Biomarker','Gene','Patient','Clinical_Trial'}),
-    (ALL_RELS[6],'Gene  —[expressed as]→  Biomarker  ·  ring closed',set(bio_pos.keys())),
+    (ALL_RELS[0],'Drug  -[treats]->  Disease',                                   {'Drug','Disease'}),
+    (ALL_RELS[1],'Biomarker  -[predicts response]->  Drug',                      {'Drug','Disease','Biomarker'}),
+    (ALL_RELS[2],'Gene  -[associated with]->  Disease',                          {'Drug','Disease','Biomarker','Gene'}),
+    (ALL_RELS[3],'Patient  -[enrolled in]->  Clinical Trial',                    {'Drug','Disease','Biomarker','Gene','Patient','Clinical_Trial'}),
+    (ALL_RELS[4],'Clinical Trial  -[investigates]->  Drug',                      {'Drug','Disease','Biomarker','Gene','Patient','Clinical_Trial'}),
+    (ALL_RELS[5],'Clinical Trial  -[studies]->  Disease',                        {'Drug','Disease','Biomarker','Gene','Patient','Clinical_Trial'}),
+    (ALL_RELS[6],'Gene  -[serves as]->  Biomarker  (gene variant = biomarker)',  set(bio_pos.keys())),
+    (ALL_RELS[7],'Biomarker  -[indicates]->  Disease  (diagnostic link)',        set(bio_pos.keys())),
+    (ALL_RELS[8],'Disease  -[triggers]->  Clinical Trial  *ring closed*',        set(bio_pos.keys())),
 ]
 for rel,headline,glow_set in STEPS:
     cumulative.append(rel)
     kf(list(cumulative),headline,glow_set,hold_ms=2000)
 
 kf(list(cumulative),
-   'Drug → Disease → Clinical Trial → Patient → Gene → Biomarker → Drug\n'
-   '"Two graphs. One walk."   ·   Disease = universal hub   ·   Drug = commercial hub',
+   'Drug -treats-> Disease -triggers-> ClinTrial -enrolls-> Patient\n'
+   'Gene -serves as-> Biomarker -indicates-> Disease   "Two graphs. One walk."',
    set(bio_pos.keys()),hold_ms=5000)
 
 print(f"Keyframes: {len(keyframes)}")
 
 # ── verify arc peaks land outside ring ────────────────────────────────────────
-for src,tgt,lbl,col,rad in ALL_RELS:
+for src,tgt,lbl,col,rad,*_ in ALL_RELS:
     p0,p1=bio_pos[src],bio_pos[tgt]
     px,py=arc_peak(p0,p1,rad)
     d=math.hypot(px,py)
