@@ -131,12 +131,12 @@ _sp_edges=[(i,j) for i in range(28) for j in range(i+1,28)
 
 # per-node color palette (base_fill, border)
 NODE_PALETTE = {
-    'Drug':           ('#DBEAFE', '#1D4ED8'),
-    'Disease':        ('#FEE2E2', '#B91C1C'),
-    'Clinical_Trial': ('#D1FAE5', '#15803D'),
-    'Patient':        ('#FEF3C7', '#B45309'),
-    'Gene':           ('#EDE9FE', '#6D28D9'),
-    'Biomarker':      ('#FCE7F3', '#BE185D'),
+    'Drug':           ('#93C5FD', '#1D4ED8'),
+    'Disease':        ('#FCA5A5', '#B91C1C'),
+    'Clinical_Trial': ('#6EE7B7', '#15803D'),
+    'Patient':        ('#FCD34D', '#B45309'),
+    'Gene':           ('#C4B5FD', '#6D28D9'),
+    'Biomarker':      ('#F472B6', '#BE185D'),
 }
 
 # mid-junction points
@@ -151,7 +151,7 @@ for i in range(n_bio):
 # ── draw ───────────────────────────────────────────────────────────────────────
 def draw_frame(ax, active_rels=None, headline=None, glow=None):
     ax.set_facecolor('#E4EBF8')
-    ax.set_xlim(-1.55,1.55); ax.set_ylim(-1.58,1.62)
+    ax.set_xlim(-1.42,1.42); ax.set_ylim(-1.18,1.62)
     ax.set_aspect('equal'); ax.axis('off')
     glow=glow or set()
 
@@ -256,10 +256,10 @@ def draw_frame(ax, active_rels=None, headline=None, glow=None):
                           edgecolor='#1D4ED8',lw=2.0,alpha=0.97),zorder=20)
 
     # tagline
-    ax.text(0,-1.42,'Graph of weights.    Graph of doing.    Graph of knowing.',
+    ax.text(0,-1.02,'Graph of weights.    Graph of doing.    Graph of knowing.',
             ha='center',va='center',fontsize=11,color='#1E3A8A',
             fontfamily='DejaVu Sans',style='italic',fontweight='semibold')
-    sketchy(ax,-0.90,-1.49,0.90,-1.49,lw=2.5,color='#1D4ED8',zorder=8)
+    sketchy(ax,-0.90,-1.09,0.90,-1.09,lw=2.5,color='#1D4ED8',zorder=8)
 
 
 def to_pil(fig):
