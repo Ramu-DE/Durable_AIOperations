@@ -1,0 +1,94 @@
+GRAPH ENGINEERING × BIOMEDICAL KNOWLEDGE GRAPH
+
+AI was always going to arrive at graphs.
+
+Not because graphs are fashionable — because knowledge has structure,
+and structure is a graph.
+
+Here is what that looks like applied to a real biomedical domain:
+
+─────────────────────────────────────────
+THREE GRAPHS. ONE SYSTEM.
+─────────────────────────────────────────
+
+Graph of Weights  (centre sphere)
+The LLM — a dense mesh of learned associations.
+Fast. Probabilistic. Excellent at pattern recall.
+Cannot tell you *why* something is true.
+
+Graph of Doing  (inner agentic cycle)
+observe → assess → check → decide → act
+The reasoning loop. The agent's executive function.
+Connects model intuition to grounded action.
+
+Graph of Knowing  (outer domain ring)
+The formal knowledge layer.
+For biomedical work, that means six entities:
+
+  Drug  ·  Disease  ·  Clinical Trial
+  Patient  ·  Gene  ·  Biomarker
+
+...and nine provenance-tracked relationships:
+
+  Drug        --[treats]------------>  Disease
+  Biomarker   --[predicts response]->  Drug
+  Gene        --[associated with]---->  Disease
+  Patient     --[enrolled in]-------->  Clinical Trial
+  Clinical Trial --[investigates]---->  Drug
+  Clinical Trial --[studies]--------->  Disease
+  Gene        --[serves as]---------->  Biomarker
+  Biomarker   --[indicates]---------->  Disease
+  Disease     --[triggers]----------->  Clinical Trial
+
+Ring closed.
+Two graphs. One walk.
+Disease = universal hub.  Drug = commercial hub.
+
+─────────────────────────────────────────
+WHY THIS MATTERS FOR REGULATED ENVIRONMENTS
+─────────────────────────────────────────
+
+The Graph of Knowing is not a search index.
+It is a formal semantic layer — versioned, SHACL-validated,
+grounded in CDISC/SDTM terminology.
+
+When an agent answers a question about a drug-disease relationship,
+it is not retrieving a cached embedding.
+It is walking a graph where every edge has a provenance trail
+you can show an auditor.
+
+"Self-improving" and "validated" are not synonyms.
+Know which one your agent is actually querying.
+
+─────────────────────────────────────────
+THE ANIMATED GIF
+─────────────────────────────────────────
+
+The attached animation builds the biomedical knowledge graph
+one relationship at a time — showing how the three-layer
+Graph Engineering architecture comes together in a regulated
+pharma / clinical data context.
+
+Built on:
+  - 31 node types  ·  37 relationship types
+  - Sourced from BioMedical_KnowledgeGraph_ontology_MCP
+  - Visualised in the Graph Engineering framework
+
+─────────────────────────────────────────
+SOURCE
+─────────────────────────────────────────
+
+BioMedical KG repo:
+  https://github.com/Ramu-DE/BioMedical_KnowledgeGraph_ontology_MCP
+
+Graph Engineering assets:
+  https://github.com/Ramu-DE/mcode
+
+─────────────────────────────────────────
+HASHTAGS
+─────────────────────────────────────────
+
+#GraphEngineering #KnowledgeGraph #BiomedicalAI #AIAgents
+#PharmaTech #ClinicalData #CDISC #OntologyDesign
+#Databricks #Neo4j #AmazonNeptune #LLM #AIInfrastructure
+#DrugDiscovery #RegulatoryAI #GxP #DataScience #MLOps
