@@ -59,17 +59,17 @@ def arc_peak(p0, p1, rad):
 #   ClinTrial->Disease   r=-0.55 -> dist=0.80
 #   Gene->Biomarker      r=+0.55 -> dist=0.80
 #   Biomarker->Disease   r=+0.85 -> dist=0.865 (arcs over top)
-#   Disease->ClinTrial   r=+0.55 -> dist=0.799 (arcs right side)
+#   Drug->ClinTrial      r=+0.85 -> dist=0.865 (arcs right side)
 ALL_RELS = [
-    ('Drug',          'Disease',        'treats',            '#C0392B', +0.55),
-    ('Biomarker',     'Drug',           'predicts\nresponse','#8E44AD', +0.55, (-0.12, -0.14)),
-    ('Gene',          'Disease',        'associated\nwith',  '#2980B9', +1.25),
-    ('Patient',       'Clinical_Trial', 'enrolled\nin',      '#27AE60', -0.55),
-    ('Clinical_Trial','Drug',           'investigates',      '#E67E22', -0.90),
-    ('Clinical_Trial','Disease',        'studies',           '#16A085', -0.55, ( 0.0, +0.13)),
-    ('Gene',          'Biomarker',      'serves\nas',        '#7F8C8D', +0.55),
-    ('Biomarker',     'Disease',        'indicates',         '#D35400', +0.85),
-    ('Disease',       'Clinical_Trial', 'triggers',          '#6C3483', +0.55, ( 0.0, -0.13)),
+    ('Drug',          'Disease',        'treats',               '#C0392B', +0.55),
+    ('Biomarker',     'Drug',           'predicts\nresponse',   '#8E44AD', +0.55, (-0.12, -0.14)),
+    ('Gene',          'Disease',        'associated\nwith',     '#2980B9', +1.25),
+    ('Patient',       'Clinical_Trial', 'participates\nin',     '#27AE60', -0.55),
+    ('Clinical_Trial','Drug',           'investigates',         '#E67E22', -0.90),
+    ('Clinical_Trial','Disease',        'studies',              '#16A085', -0.55),
+    ('Gene',          'Biomarker',      'is biomarker\nfor',    '#7F8C8D', +0.55),
+    ('Biomarker',     'Disease',        'indicates',            '#D35400', +0.85),
+    ('Drug',          'Clinical_Trial', 'evaluated\nin',        '#0E7490', +0.85, ( 0.0, -0.22)),
 ]
 
 # ── helpers ────────────────────────────────────────────────────────────────────
@@ -165,7 +165,7 @@ def draw_frame(ax, active_rels=None, headline=None, glow=None):
                 [_sp_pts[i][1],_sp_pts[j][1]],'k-',lw=0.25,alpha=0.5,zorder=5)
     for pt in _sp_pts:
         ax.plot(pt[0],pt[1],'ko',markersize=1.5,zorder=6,alpha=0.8)
-    ax.annotate('graph of\nweights',xy=(CX,CY-R_SP-0.005),
+    ax.annotate('graph of\nlearning',xy=(CX,CY-R_SP-0.005),
                 xytext=(CX+0.02,CY-0.44),ha='center',fontsize=9,
                 color='#1E3A8A',style='italic',fontweight='bold',
                 arrowprops=dict(arrowstyle='->',color='#3B82F6',lw=1.2),zorder=10)
@@ -256,7 +256,7 @@ def draw_frame(ax, active_rels=None, headline=None, glow=None):
                           edgecolor='#1D4ED8',lw=2.0,alpha=0.97),zorder=20)
 
     # tagline
-    ax.text(0,-1.02,'Graph of weights.    Graph of doing.    Graph of knowing.',
+    ax.text(0,-1.02,'Graph of learning.    Graph of doing.    Graph of knowing.',
             ha='center',va='center',fontsize=11,color='#1E3A8A',
             fontfamily='DejaVu Sans',style='italic',fontweight='semibold')
     sketchy(ax,-0.90,-1.09,0.90,-1.09,lw=2.5,color='#1D4ED8',zorder=8)
@@ -284,23 +284,23 @@ kf(headline='Biomedical Knowledge Graph  --  31 node types  --  37 relationship 
 
 cumulative=[]
 STEPS=[
-    (ALL_RELS[0],'Drug  -[treats]->  Disease',                                   {'Drug','Disease'}),
-    (ALL_RELS[1],'Biomarker  -[predicts response]->  Drug',                      {'Drug','Disease','Biomarker'}),
-    (ALL_RELS[2],'Gene  -[associated with]->  Disease',                          {'Drug','Disease','Biomarker','Gene'}),
-    (ALL_RELS[3],'Patient  -[enrolled in]->  Clinical Trial',                    {'Drug','Disease','Biomarker','Gene','Patient','Clinical_Trial'}),
-    (ALL_RELS[4],'Clinical Trial  -[investigates]->  Drug',                      {'Drug','Disease','Biomarker','Gene','Patient','Clinical_Trial'}),
-    (ALL_RELS[5],'Clinical Trial  -[studies]->  Disease',                        {'Drug','Disease','Biomarker','Gene','Patient','Clinical_Trial'}),
-    (ALL_RELS[6],'Gene  -[serves as]->  Biomarker  (gene variant = biomarker)',  set(bio_pos.keys())),
-    (ALL_RELS[7],'Biomarker  -[indicates]->  Disease  (diagnostic link)',        set(bio_pos.keys())),
-    (ALL_RELS[8],'Disease  -[triggers]->  Clinical Trial  *ring closed*',        set(bio_pos.keys())),
+    (ALL_RELS[0],'Drug  -[treats]->  Disease',                                    {'Drug','Disease'}),
+    (ALL_RELS[1],'Biomarker  -[predicts_response_to]->  Drug',                    {'Drug','Disease','Biomarker'}),
+    (ALL_RELS[2],'Gene  -[associated_with]->  Disease',                           {'Drug','Disease','Biomarker','Gene'}),
+    (ALL_RELS[3],'Patient  -[participates_in]->  Clinical Trial',                 {'Drug','Disease','Biomarker','Gene','Patient','Clinical_Trial'}),
+    (ALL_RELS[4],'Clinical Trial  -[investigates]->  Drug',                       {'Drug','Disease','Biomarker','Gene','Patient','Clinical_Trial'}),
+    (ALL_RELS[5],'Clinical Trial  -[studies]->  Disease',                         {'Drug','Disease','Biomarker','Gene','Patient','Clinical_Trial'}),
+    (ALL_RELS[6],'Gene  -[is_biomarker_for]->  Biomarker',                        set(bio_pos.keys())),
+    (ALL_RELS[7],'Biomarker  -[indicates]->  Disease  (diagnostic link)',         set(bio_pos.keys())),
+    (ALL_RELS[8],'Drug  -[evaluated_in]->  Clinical Trial  *ring closed*',        set(bio_pos.keys())),
 ]
 for rel,headline,glow_set in STEPS:
     cumulative.append(rel)
     kf(list(cumulative),headline,glow_set,hold_ms=2000)
 
 kf(list(cumulative),
-   'Drug -treats-> Disease -triggers-> ClinTrial -enrolls-> Patient\n'
-   'Gene -serves as-> Biomarker -indicates-> Disease   "Two graphs. One walk."',
+   'Drug -treats-> Disease  |  Gene -is_biomarker_for-> Biomarker -indicates-> Disease\n'
+   'Drug -evaluated_in-> ClinTrial  |  Patient -participates_in-> ClinTrial   "Three graphs. One walk."',
    set(bio_pos.keys()),hold_ms=5000)
 
 print(f"Keyframes: {len(keyframes)}")

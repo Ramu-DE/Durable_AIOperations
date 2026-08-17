@@ -1,82 +1,76 @@
-GRAPH ENGINEERING × BIOMEDICAL KNOWLEDGE GRAPH
+GRAPH ENGINEERING x BIOMEDICAL KNOWLEDGE GRAPH
 
 AI was always going to arrive at graphs.
 
-Not because graphs are fashionable — because knowledge has structure,
-and structure is a graph.
+Not because graphs are fashionable -- but because knowledge has structure,
+and structure can be represented as a graph.
 
 Here is what that looks like applied to a real biomedical domain:
 
-─────────────────────────────────────────
 THREE GRAPHS. ONE SYSTEM.
-─────────────────────────────────────────
 
-Graph of Weights  (centre sphere)
-The LLM — a dense mesh of learned associations.
-Fast. Probabilistic. Excellent at pattern recall.
-Cannot tell you *why* something is true.
+Graph of Learning -- centre
 
-Graph of Doing  (inner agentic cycle)
-observe → assess → check → decide → act
-The reasoning loop. The agent's executive function.
-Connects model intuition to grounded action.
+The LLM: a high-dimensional, parameterized model containing
+distributed learned representations.
 
-Graph of Knowing  (outer domain ring)
-The formal knowledge layer.
-For biomedical work, that means six entities:
+Fast. Probabilistic. Excellent at pattern recognition and generation.
 
-  Drug  ·  Disease  ·  Clinical Trial
-  Patient  ·  Gene  ·  Biomarker
+But its learned parameters do not inherently provide explicit,
+auditable provenance for domain facts.
 
-...and nine provenance-tracked relationships:
+Graph of Doing -- inner agentic loop
 
-  Drug        --[treats]------------>  Disease
-  Biomarker   --[predicts response]->  Drug
-  Gene        --[associated with]---->  Disease
-  Patient     --[enrolled in]-------->  Clinical Trial
-  Clinical Trial --[investigates]---->  Drug
-  Clinical Trial --[studies]--------->  Disease
-  Gene        --[serves as]---------->  Biomarker
-  Biomarker   --[indicates]---------->  Disease
-  Disease     --[triggers]----------->  Clinical Trial
+observe -> assess -> check -> decide -> act
 
-Ring closed.
-Two graphs. One walk.
-Disease = universal hub.  Drug = commercial hub.
+The agent's execution and decision loop -- connecting
+model-generated plans to grounded tools, policies and actions.
 
-─────────────────────────────────────────
+Graph of Knowing -- outer domain layer
+
+The formal semantic layer.
+
+For this biomedical example, six core entities:
+
+  Drug  |  Disease  |  Clinical Trial  |  Patient  |  Gene  |  Biomarker
+
+with typed relationships:
+
+  Drug           --[treats]---------------->  Disease
+  Biomarker      --[predicts_response_to]--->  Drug
+  Gene           --[associated_with]-------->  Disease
+  Patient        --[participates_in]-------->  Clinical Trial
+  Clinical Trial --[investigates]----------->  Drug
+  Clinical Trial --[studies]--------------->  Disease
+  Gene           --[is_biomarker_for]------->  Biomarker
+  Biomarker      --[indicates]-------------->  Disease
+  Drug           --[evaluated_in]----------->  Clinical Trial
+
+Each assertion can carry provenance, evidence,
+timestamps and version information.
+
+Three graphs. One agent. One grounded walk.
+
 WHY THIS MATTERS FOR REGULATED ENVIRONMENTS
-─────────────────────────────────────────
 
-The Graph of Knowing is not a search index.
-It is a formal semantic layer — versioned, SHACL-validated,
-grounded in CDISC/SDTM terminology.
+The Graph of Knowing is not merely a search index.
+
+It is a formal semantic layer -- versioned, constraint-validated
+with SHACL, and aligned with relevant biomedical and
+CDISC/SDTM terminology where applicable.
 
 When an agent answers a question about a drug-disease relationship,
-it is not retrieving a cached embedding.
-It is walking a graph where every edge has a provenance trail
-you can show an auditor.
+it can combine semantic retrieval and graph traversal to reach
+explicit, evidence-backed assertions with traceable provenance.
 
-"Self-improving" and "validated" are not synonyms.
-Know which one your agent is actually querying.
+The distinction matters:
 
-─────────────────────────────────────────
-THE ANIMATED GIF
-─────────────────────────────────────────
+Self-improving is not the same as validated.
 
-The attached animation builds the biomedical knowledge graph
-one relationship at a time — showing how the three-layer
-Graph Engineering architecture comes together in a regulated
-pharma / clinical data context.
+Know which layer your agent is actually using --
+learned representation, agent execution, or governed knowledge.
 
-Built on:
-  - 31 node types  ·  37 relationship types
-  - Sourced from BioMedical_KnowledgeGraph_ontology_MCP
-  - Visualised in the Graph Engineering framework
-
-─────────────────────────────────────────
 SOURCE
-─────────────────────────────────────────
 
 BioMedical KG repo:
   https://github.com/Ramu-DE/BioMedical_KnowledgeGraph_ontology_MCP
@@ -84,9 +78,7 @@ BioMedical KG repo:
 Graph Engineering assets:
   https://github.com/Ramu-DE/mcode
 
-─────────────────────────────────────────
 HASHTAGS
-─────────────────────────────────────────
 
 #GraphEngineering #KnowledgeGraph #BiomedicalAI #AIAgents
 #PharmaTech #ClinicalData #CDISC #OntologyDesign
